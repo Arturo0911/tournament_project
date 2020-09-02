@@ -3,8 +3,9 @@ from django.http import JsonResponse
 from .models import Profile, Cash_per_account
 from django.views.decorators.csrf import csrf_exempt
 
+# Modules
 import json
-
+from .functions import json_decode
 
 # Create your views here.
 
@@ -58,10 +59,26 @@ def post_profile(request): # POST method
 # To modify and update
 
 @csrf_exempt
-def update_profile(request):
-    id = request.GET.get('id', '')
-    print(id)
-    Profile.objects.filter(pk= id).update()
-    print(request.body)
-    return HttpResponse("To update into sqlite3")
+def update_profile(request,id): # GET data to update sqlite3
+    new_data = json_decode.decode_json(request.body)
+    #print(json_decode.decode_json(request.body))
+
+    data_to_update = Profile.objects.get(id = id)
+
+    data_to_update.full_name = new_data['full_name']
+    data_to_update.email_address = new_data['email_address']
+    data_to_update.username = new_data['username']
+    data_to_update.password = new_data['password']
+    data_to_update.save()
+
+    #print(data_to_update.full_name)
+    return HttpResponse("Data was updated")
+
+
+def delete_profile(request, id): # using get mehtod to delete data with postman
+
+    delete_data = Profile.objects.get(id = id)
+    delete_data.delete()
+
+    return HttpResponse('Data was deleted successfully')
     
